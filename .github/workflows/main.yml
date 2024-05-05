@@ -1,0 +1,51 @@
+name: Build and Test Car Assembly
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Build environment
+      run: |
+        mkdir build
+        cd build
+        echo "Body" > details.txt
+        echo "Engine" >> details.txt
+        echo "Wheels" >> details.txt
+        cd ..
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: car-artifacts
+        path: build
+
+  test:
+    runs-on: ubuntu-latest
+
+    needs: build
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: car-artifacts
+        path: build
+
+    - name: Test Car Assembly
+      run: |
+        cd build
+        grep "Body" details.txt
+        grep "Engine" details.txt
+        grep "Wheels" details.txt
